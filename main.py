@@ -1,34 +1,49 @@
 import numpy as np
 
 
-class OsloModel:
-    """
-        Object to represent the Oslo Model with a d=1 lattice of l sites.
-    """
+def initialise(size=4):
+    heights = np.zeros(size)
+    slopes = np.zeros(size)
+    thresholds = np.random.randint(1, 3, size=size)
+    return heights, slopes, thresholds
 
-    def __init__(self, l):
-        self.size = l
-        self.sites = np.zeros((l, 2))  # Array holds height of grains and threshold slope at each site
-        self.sites[:,1] = np.random.randint(1, 3, size=self.size)  # Initialise random thresholds {1, 2}
 
-    def __repr__(self):
-        return '\nOslo Model: \n\nSite size = ' + str(np.shape(self.sites)[0]) + '\nSite Heights: \n\t' + str(self.sites[:,0]) + \
-            '\nSite Threshold Slopes: \n\t' + str(self.sites[:,1])
+def update_slopes(heights):
+    return abs(np.diff(heights, append=[0]))
 
-    def get_slope(self, i):
-        i -= 1
-        if i >= self.size or i < 0:
-            raise ValueError ("Invalid location value, must be 1 <= i <= l")
-        elif i == self.size - 1:  # When at edge of lattice (l)
-            return self.sites[i][0]
+
+def drive_and_relax(heights, slopes, thresholds, grains=16):
+    avalanches = []
+    s_h = []
+
+    for g in range(grains):
+        avalanche_size = 0
+        heights[0] += 1
+        slopes = update_slopes(heights)
+        if ((slopes - thresholds) <= 0).all():
+            print('Heights: ', heights, 'Slopes: ', slopes, 'Thresholds: ', thresholds)
+            avalanches.append(avalanche_size)
         else:
-            return self.sites[i][0] - self.sites[i+1][0]
-        
+            while not ((slopes - thresholds) <= 0).all():
+                for i in range(len(heights)):
+                    if slopes[i] > thresholds[i]:
+                        heights[i] -= 1
+                        if i != len(heights) - 1:
+                            heights[i+1] += 1
+                        slopes = update_slopes(heights)
+                        thresholds[i] = np.random.randint(1, 3)
+                        avalanche_size += 1
+                    else:
+                        pass
+            avalanches.append(avalanche_size)
+            print('Heights: ', heights, 'Slopes: ', slopes, 'Thresholds: ', thresholds)
 
-def model_algorithm(model):
-    pass
+        if g > 800:
+            s_h.append(heights[0])
+    return s_h, avalanches
 
 
 if __name__ == '__main__':
-    model = OsloModel(l=20)
-    print(model)
+    heights, slopes, thresholds = initialise(size=32)
+    s_h, avalanches = drive_and_relax(heights, slopes, thresholds, grains=20000)
+    print(np.average(s_h))
