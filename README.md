@@ -10,10 +10,13 @@ Python Version: 3.8.2
 - Matplotlib: V.3.3.1
 
 
-## How the code works: ##
+## Code Structure: ##
 
-    1. Initial object (Oslo Model)
-    2. That's it
+    1. Custom PDF used for threshold
+    2. Initialisation method to start model for given system size
+    3. Drive and Relax method to run system for given No. of grains
+    4. Task_1 method for Task 1: to perform tests on model - ensuring it works
+    5. Task_2 method for Task 2
 
 
-Enjoy the code!
+*Enjoy the code!*
