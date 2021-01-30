@@ -5,7 +5,7 @@ Date: 29/01/2021
 
 
 Python Version: 3.8.2 \
-Dependencies:
+### Dependencies: ###
 - Numpy: V.1.9.1
 
 
