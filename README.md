@@ -1,7 +1,7 @@
 # ComplexityProject #
 
 Author: Georgios Alevras \
-Date: 29/01/2021
+Date: 30/01/2021
 
 
 Python Version: 3.8.2
@@ -11,7 +11,6 @@ Python Version: 3.8.2
 
 
 ## Code Structure: ##
-
     1. Custom PDF used for threshold
     2. Initialisation method to start model for given system size
     3. Drive and Relax method to run system for given No. of grains
