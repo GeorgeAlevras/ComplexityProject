@@ -52,7 +52,7 @@ def drive_and_relax(heights, slopes, thresholds, grains=16, p=0.5):
             avalanches.append(avalanche_size)
         
         if steady_state and steady_state_time == 0:
-            steady_state_time = g
+            steady_state_time = g - 1
         h_1.append(heights[0])
         height_configs.append(heights.tolist())
     
@@ -148,9 +148,8 @@ def check_recurrent_configs(size=4, grains=100000):
     return reccur
 
 
-def task_2(compute=True, plot=False):
+def task_2_a(compute=True, plot=False):
     if compute:
-        """ Task 2a """
         heights, slopes, thresholds = initialise(size=4, p=0.5)
         heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
         np.save(os.path.join('Numpy Files', 'Task 2a: L=4, p=0.5'), np.array([h_1, sst]))  # Save data in a .npy file
@@ -174,7 +173,6 @@ def task_2(compute=True, plot=False):
         np.save(os.path.join('Numpy Files', 'Task 2a: L=256, p=0.5'), np.array([h_1, sst]))  # Save data in a .npy file
 
     if plot:
-        """ Task 2a """
         h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
         h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
         h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
@@ -196,7 +194,57 @@ def task_2(compute=True, plot=False):
         plt.show()
 
 
+def task_2_b(compute=True, plot=False):
+    l = [8, 16, 32, 64, 128]
+    avg_cross_over_times = []
+    t = 0
+    
+    if compute:
+        for i in range(6):
+            heights, slopes, thresholds = initialise(size=8, p=0.5)
+            heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=500, p=0.5)
+            t += sst
+        avg_cross_over_times.append(t/6)
+        t = 0
+        for i in range(6):
+            heights, slopes, thresholds = initialise(size=16, p=0.5)
+            heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=1000, p=0.5)
+            t += sst
+        avg_cross_over_times.append(t/6)
+        t = 0
+        for i in range(6):
+            heights, slopes, thresholds = initialise(size=32, p=0.5)
+            heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=2000, p=0.5)
+            t += sst
+        avg_cross_over_times.append(t/6)
+        t = 0
+        for i in range(6):       
+            heights, slopes, thresholds = initialise(size=64, p=0.5)
+            heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=4000, p=0.5)
+            t += sst
+        avg_cross_over_times.append(t/6)
+        t = 0
+        for i in range(6):
+            heights, slopes, thresholds = initialise(size=128, p=0.5)
+            heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=15000, p=0.5)
+            t += sst
+        avg_cross_over_times.append(t/6)
+        
+        np.save(os.path.join('Numpy Files', 'Task 2b'), np.array(avg_cross_over_times))  # Save data in a .npy file
+
+    if plot:
+        avg_cross_over_times = np.load('Task 2b.npy', allow_pickle=True)
+        print(avg_cross_over_times.tolist())
+        plt.plot(l, avg_cross_over_times, 'o', label='Avg using 5 samples for each system size')
+        plt.xlabel('System Size [L]', fontname='Times New Roman', fontsize=12)
+        plt.ylabel('Average of Cross-Over Times', fontname='Times New Roman', fontsize=12)
+        plt.legend()
+        plt.savefig('Plots/Task2/task2b.png')
+        plt.show()
+
+
 if __name__ == '__main__':
     # task_1(compute=False, plot=True)
-    print('No. of reccurant configs:', check_recurrent_configs(size=2, grains=int(2e4)))
-    # task_2(compute=False, plot=True)
+    # print('No. of reccurant configs:', check_recurrent_configs(size=2, grains=int(2e4)))
+    # task_2_a(compute=False, plot=True)
+    task_2_b(compute=True, plot=False)
