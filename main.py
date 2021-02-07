@@ -54,7 +54,6 @@ def drive_and_relax(heights, slopes, thresholds, grains=16, p=0.5):
             avalanches.append(avalanche_size)
         
         if steady_state and steady_state_time == 0:
-            # steady_state_time = g - 1
             steady_state_time = heights_sum
         
         h_1.append(heights[0])
@@ -99,6 +98,28 @@ def task_1(compute=True, plot=False):
         heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=4000, p=0.5)
         np.save(os.path.join('Numpy Files', 'First Site Height: L=32, p=0.5'), np.array([h_1, sst]))  # Save data in a .npy file
 
+        """ Average avalanche size with system size """
+        avalanche_sizes = []
+        heights, slopes, thresholds = initialise(size=4, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=4000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        heights, slopes, thresholds = initialise(size=8, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=8000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        heights, slopes, thresholds = initialise(size=16, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=16000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        heights, slopes, thresholds = initialise(size=32, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=32000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        heights, slopes, thresholds = initialise(size=64, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        heights, slopes, thresholds = initialise(size=128, p=0.5)
+        heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=90000, p=0.5)
+        avalanche_sizes.append(np.average(avalanches))
+        np.save(os.path.join('Numpy Files', '1: avg_avalanche_size'), np.array(avalanche_sizes))  # Save data in a .npy file
+
     if plot:
         """ Plotting the heights themselves """
         heights = np.load('Pile Visualised: L=64, p=0.5.npy', allow_pickle=True)
@@ -114,14 +135,16 @@ def task_1(compute=True, plot=False):
         h_1_0_5 = np.load('Changing Probabilities: L=16, p=0.5.npy', allow_pickle=True)
         h_1_1 = np.load('Changing Probabilities: L=16, p=1.npy', allow_pickle=True)
         fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h_1_0, label=r'$p=0, \langle{steady-state}\rangle=$' + str(np.average(h_1_0[300:])))
-        plt.plot(h_1_0_5, label=r'$p=0.5, \langle{steady-state}\rangle=$' + str(round(np.average(h_1_0_5[300:]), 5)))
-        plt.plot(h_1_1, label=r'$p=1, \langle{steady-state}\rangle=$' + str(np.average(h_1_1[300:])))
+        plt.plot(h_1_0, label=r'$p=0, \langle{steady-state}\rangle=$' + r'${}$'.format(str(np.average(h_1_0[300:]))))
+        plt.plot(h_1_0_5, label=r'$p=0.5, \langle{steady-state}\rangle=$' + r'${}$'.format(str(round(np.average(h_1_0_5[300:]), 5))))
+        plt.plot(h_1_1, label=r'$p=1, \langle{steady-state}\rangle=$' + r'${}$'.format(str(np.average(h_1_1[300:]))))
         plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{h(t; L)}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -142,13 +165,15 @@ def task_1(compute=True, plot=False):
         slopes = np.load('Slopes Bounded: L=32, p=0.5 Slopes.npy', allow_pickle=True)
         thresholds = np.load('Slopes Bounded: L=32, p=0.5 Thresholds.npy', allow_pickle=True)
         fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(sites, slopes, 'o', label=r'$Actual Slopes$')
-        plt.plot(sites, thresholds, 'x', label=r'$Threshold Slopes$')
+        plt.plot(sites, slopes, 'o', label=r'$Actual\: Slopes$')
+        plt.plot(sites, thresholds, 'x', label=r'$Threshold\: Slopes$')
         plt.xlabel('$\it{i}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel('$\it{z_i}$', fontname='Times New Roman', fontsize=20)
         plt.xlim([0, 33])
@@ -164,17 +189,19 @@ def task_1(compute=True, plot=False):
         plt.savefig('Plots/Task1/slopes_bounded.png')
         plt.show()
 
-        """ Checking the height at the first site fir L = 16, 32 """
+        """ Checking the height at the first site for L = 16, 32 """
         h_1_16, sst_16 = np.load('First Site Height: L=16, p=0.5.npy', allow_pickle=True)
         h_1_32, sst_32 = np.load('First Site Height: L=32, p=0.5.npy', allow_pickle=True)
         fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h_1_16, label=r'$L=16, \langle{steady-state}\rangle = $' + str(round(np.average(h_1_16[sst_16:]), 5)))
-        plt.plot(h_1_32, label=r'$L=32, \langle{steady-state}\rangle = $' + str(round(np.average(h_1_32[sst_32:]), 5)))
+        plt.plot(h_1_16, label=r'$L=16, \langle{steady-state}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_16[sst_16:]), 5))))
+        plt.plot(h_1_32, label=r'$L=32, \langle{steady-state}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_32[sst_32:]), 5))))
         plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{h(t; L)}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -188,6 +215,39 @@ def task_1(compute=True, plot=False):
         plt.ylim(0, 62)
         plt.xlim(-200, 4100)
         plt.savefig('Plots/Task1/heights_at_site_1.png')
+        plt.show()
+
+        """ Average avalanche size with system size """
+        avalanche_avg = np.load('1: avg_avalanche_size.npy', allow_pickle=True)
+        l = [4, 8, 16, 32, 64, 128]
+        fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        log_l = np.log(l)
+        log_avalanches_avg = np.log(avalanche_avg)
+        fit_phase, cov_phase = np.polyfit(log_l, log_avalanches_avg, 1, cov=True)
+        p_phase = np.poly1d(fit_phase)
+        l_fit = np.linspace(min(log_l), max(log_l), 1000)
+        plt.plot(log_l, log_avalanches_avg, 'o', label=r'$\langle{s}\rangle$' + ' ' + r'$obtained$')
+        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 3))))
+        plt.xlabel('$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{log({\langle{s}\rangle})}$', fontname='Times New Roman', fontsize=17)
+        plt.legend()
+        plt.minorticks_on()
+        ax.tick_params(direction='in')
+        ax.tick_params(which='minor', direction='in')
+        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.6)
+        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+        plt.xticks(fontsize=12, fontname='Times New Roman')
+        plt.yticks(fontsize=12, fontname='Times New Roman')
+        plt.ylim(1, 5)
+        plt.xlim(1, 5)
+        plt.savefig('Plots/Task1/avg_avalanche_scaling.png')
         plt.show()
 
 
@@ -230,18 +290,20 @@ def task_2_a(compute=True, plot=False):
         h_1_128, sst_128 = np.load('Task 2a: L=128, p=0.5.npy', allow_pickle=True)
         h_1_256, sst_256 = np.load('Task 2a: L=256, p=0.5.npy', allow_pickle=True)
         fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h_1_4, label=r'$L=4, \langle{t_c(L=4)}\rangle  = $' + str(sst_4))
-        plt.plot(h_1_8, label=r'$L=8, \langle{t_c(L=8)}\rangle  = $' + str(sst_8))
-        plt.plot(h_1_16, label=r'$L=16, \langle{t_c(L=16)}\rangle  = $' + str(sst_16))
-        plt.plot(h_1_32, label=r'$L=32, \langle{t_c(L=32)}\rangle  = $' + str(sst_32))
-        plt.plot(h_1_64, label=r'$L=64, \langle{t_c(L=64)}\rangle  = $' + str(sst_64))
-        plt.plot(h_1_128, label=r'$L=128, \langle{t_c(L=128)}\rangle  = $' + str(sst_128))
-        plt.plot(h_1_256, label=r'$L=256, \langle{t_c(L=258)}\rangle  = $' + str(sst_256))
+        plt.plot(h_1_4, label=r'$L=4$')
+        plt.plot(h_1_8, label=r'$L=8$')
+        plt.plot(h_1_16, label=r'$L=16$')
+        plt.plot(h_1_32, label=r'$L=32$')
+        plt.plot(h_1_64, label=r'$L=64$')
+        plt.plot(h_1_128, label=r'$L=128$')
+        plt.plot(h_1_256, label=r'$L=256$')
         plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{h(t; L)}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -338,6 +400,36 @@ def task_2_b(compute=True, plot=False):
         plt.savefig('Plots/Task2/task2b.png')
         plt.show()
 
+        l_log = np.log(l)
+        avg_cross_over_times_log = np.log(avg_cross_over_times)
+        fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        fit_phase, cov_phase = np.polyfit(l_log, avg_cross_over_times_log, 1, cov=True)
+        p_phase = np.poly1d(fit_phase)
+        l_fit = np.linspace(min(l_log), max(l_log), 1000)
+        plt.plot(l_log, avg_cross_over_times_log, 'o', label=r'$\langle{t_c}\rangle$')
+        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 2))))
+        plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$log({\langle{t_c}\rangle})$', fontname='Times New Roman', fontsize=18)
+        plt.legend()
+        plt.minorticks_on()
+        ax.tick_params(direction='in')
+        ax.tick_params(which='minor', direction='in')
+        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.6)
+        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+        plt.xticks(fontsize=12, fontname='Times New Roman')
+        plt.yticks(fontsize=12, fontname='Times New Roman')
+        plt.xlim(1, 6)
+        plt.ylim(2, 12)
+        plt.savefig('Plots/Task2/task2b_log_plot.png')
+        plt.show()
+
 
 def task_2_d(compute=True, plot=False):
     if compute:
@@ -423,7 +515,10 @@ def task_2_d(compute=True, plot=False):
         h_1_256 /= 256
         t_s = np.linspace(0, 0.88, 881)
         x_sq = 1.75*np.sqrt(t_s)
+        x_sq_cor = 1.75*np.sqrt(t_s) + 0.095*t_s
         fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
@@ -437,8 +532,9 @@ def task_2_d(compute=True, plot=False):
         plt.plot(t_128, h_1_128, label=r'$L=128$')
         plt.plot(t_256, h_1_256, label=r'$L=256$')
         plt.plot(t_s, x_sq, '--', label=r'$y= 1.72\sqrt{t}$', alpha=0.9, linewidth=2, color='k')
-        plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{\tilde h(t; L)}$', fontname='Times New Roman', fontsize=17)
+        plt.plot(t_s, x_sq_cor, '--', label=r'$y_c= 1.72\sqrt{t}\: + 0.095t$', alpha=0.9, linewidth=2, color='k')
+        plt.xlabel('$\it{t}$' + ' ' + r'$/L^{2}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{\tilde h(t; L)}$' + ' / ' + r'$L$', fontname='Times New Roman', fontsize=17)
         plt.legend()
         plt.minorticks_on()
         ax.tick_params(direction='in')
@@ -447,7 +543,7 @@ def task_2_d(compute=True, plot=False):
         plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(-0.1, 1.25)
+        plt.xlim(-0.05, 1.25)
         plt.ylim(0, 2)
         plt.savefig('Plots/Task2/task2d.png')
         plt.show()
@@ -462,37 +558,35 @@ def task_2_e():
     h_1_128, sst_128 = np.load('Task 2a: L=128, p=0.5.npy', allow_pickle=True)
     h_1_256, sst_256 = np.load('Task 2a: L=256, p=0.5.npy', allow_pickle=True)
 
-    h_4_avg = np.average(h_1_4[sst_4:])
-    h_8_avg = np.average(h_1_8[sst_8:])
-    h_16_avg = np.average(h_1_16[sst_16:])
-    h_32_avg = np.average(h_1_32[sst_32:])
-    h_64_avg = np.average(h_1_64[sst_64:])
-    h_128_avg = np.average(h_1_128[sst_128:])
+    h_4_avg = np.average(h_1_4[sst_4:][::4])
+    h_8_avg = np.average(h_1_8[sst_8:][::8])
+    h_16_avg = np.average(h_1_16[sst_16:][::16])
+    h_32_avg = np.average(h_1_32[sst_32:][::32])
+    h_64_avg = np.average(h_1_64[sst_64:][::64])
+    h_128_avg = np.average(h_1_128[sst_128:][::128])
     h_256_avg = np.average(h_1_256[sst_256:])
-    h_4_std = np.std(h_1_4[sst_4:])
-    h_8_std = np.std(h_1_8[sst_8:])
-    h_16_std = np.std(h_1_16[sst_16:])
-    h_32_std = np.std(h_1_32[sst_32:])
-    h_64_std = np.std(h_1_64[sst_64:])
-    h_128_std = np.std(h_1_128[sst_128:])
-    h_256_std = np.std(h_1_256[sst_256:])
+    h_avg = [h_4_avg, h_8_avg, h_16_avg, h_32_avg, h_64_avg]  # , h_128_avg, h_256_avg
 
-    sites = [4, 8, 16, 32, 64, 128, 256]
+    sites = [4, 8, 16, 32, 64]  #, 128, 256
+    a_0 = h_128_avg / 128
+    y = [l - h/a_0 for l, h in zip(sites, h_avg)]
+    sites_log = np.log(sites)
+    y_log = np.log(y)
     fig, ax = plt.subplots()
+    params = {'legend.fontsize': 12}
+    plt.rcParams.update(params)
     matplotlib.rcParams['mathtext.fontset'] = 'custom'
     matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
     matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
     matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
-    plt.plot(sites[0], h_4_avg, 'o', label=r'$L=4,$' + ' ' + r'$std=$' + str(round(h_4_std, 4)))
-    plt.plot(sites[1], h_8_avg, 'o', label=r'$L=8,$' + ' ' +  r'$std=$' + str(round(h_8_std, 4)))
-    plt.plot(sites[2], h_16_avg, 'o', label=r'$L=16,$' + ' ' +  r'$std=$' + str(round(h_16_std, 4)))
-    plt.plot(sites[3], h_32_avg, 'o', label=r'$L=32,$' + ' ' +  r'$std=$' + str(round(h_32_std, 4)))
-    plt.plot(sites[4], h_64_avg, 'o', label=r'$L=64,$' + ' ' +  r'$std=$' + str(round(h_64_std, 4)))
-    plt.plot(sites[5], h_128_avg, 'o', label=r'$L=128,$' + ' ' +  r'$std=$' + str(round(h_128_std, 4)))
-    plt.plot(sites[6], h_256_avg, 'o', label=r'$L=256,$' + ' ' +  r'$std=$' + str(round(h_256_std, 4)))
-    plt.xlabel('$\it{L}$', fontname='Times New Roman', fontsize=17)
-    plt.ylabel(r'$\it{\langle{steady-state}\rangle}$', fontname='Times New Roman', fontsize=17)
+    fit_phase, cov_phase = np.polyfit(sites_log, y_log, 1, cov=True)
+    p_phase = np.poly1d(fit_phase)
+    l_fit = np.linspace(min(sites_log), max(sites_log), 1000)
+    plt.plot(sites_log, y_log, 'o')
+    plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$\omega_1=$' + ' ' + r'${}$'.format(str(round(1 - fit_phase[0], 5))))
+    plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+    plt.ylabel(r'$log({L-\langle{h(t; L)}\rangle_t\: /\: a_0})$', fontname='Times New Roman', fontsize=18)
     plt.legend()
     plt.minorticks_on()
     ax.tick_params(direction='in')
@@ -501,10 +595,58 @@ def task_2_e():
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     plt.xticks(fontsize=12, fontname='Times New Roman')
     plt.yticks(fontsize=12, fontname='Times New Roman')
-    plt.xlim(0, 270)
-    plt.ylim(0, 460)
+    plt.xlim(1, 5)
+    plt.ylim(-1.2, -0.4)
     plt.savefig('Plots/Task2/task2e.png')
     plt.show()
+
+
+def task_2_f():
+    h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
+    h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
+    h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
+    h_1_32, sst_32 = np.load('Task 2a: L=32, p=0.5.npy', allow_pickle=True)
+    h_1_64, sst_64 = np.load('Task 2a: L=64, p=0.5.npy', allow_pickle=True)
+    h_1_128, sst_128 = np.load('Task 2a: L=128, p=0.5.npy', allow_pickle=True)
+
+    h_4_std = np.std(h_1_4[sst_4:][::4])
+    h_8_std = np.std(h_1_8[sst_8:][::8])
+    h_16_std = np.std(h_1_16[sst_16:][::16])
+    h_32_std = np.std(h_1_32[sst_32:][::32])
+    h_64_std = np.std(h_1_64[sst_64:][::64])
+    h_128_std = np.std(h_1_128[sst_128:][::128])
+    h_std = [h_4_std, h_8_std, h_16_std, h_32_std, h_64_std, h_128_std]
+    sites = [4, 8, 16, 32, 64, 128]  #, 128, 256
+    sites_log = np.log(sites)
+    std_log = np.log(h_std)
+    fig, ax = plt.subplots()
+    params = {'legend.fontsize': 12}
+    plt.rcParams.update(params)
+    matplotlib.rcParams['mathtext.fontset'] = 'custom'
+    matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+    matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+    matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    fit_phase, cov_phase = np.polyfit(sites_log, std_log, 1, cov=True)
+    p_phase = np.poly1d(fit_phase)
+    l_fit = np.linspace(min(sites_log), max(sites_log), 1000)
+    plt.plot(sites_log, std_log, 'o')
+    plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 5))))
+    plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+    plt.ylabel(r'$log({\sigma_h(L)})$', fontname='Times New Roman', fontsize=18)
+    plt.legend()
+    plt.minorticks_on()
+    ax.tick_params(direction='in')
+    ax.tick_params(which='minor', direction='in')
+    plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.6)
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+    plt.xticks(fontsize=12, fontname='Times New Roman')
+    plt.yticks(fontsize=12, fontname='Times New Roman')
+    plt.xlim(1, 5)
+    plt.ylim(-0.4, 0.8)
+    plt.savefig('Plots/Task2/task2f.png')
+    plt.show()
+
 
 
 if __name__ == '__main__':
@@ -513,4 +655,5 @@ if __name__ == '__main__':
     # task_2_a(compute=False, plot=True)
     # task_2_b(compute=False, plot=True)
     # task_2_d(compute=False, plot=True)
-    task_2_e()
+    # task_2_e()
+    task_2_f()
