@@ -4,6 +4,7 @@ import matplotlib
 from collections import Counter
 import os
 from logbin_2020 import logbin
+from scipy.stats import skew, kurtosis
 
 
 def threshold_prob(p=0.5, n=1):
@@ -570,8 +571,9 @@ def task_2_e():
     h_avg = [h_4_avg, h_8_avg, h_16_avg, h_32_avg, h_64_avg, h_128_avg, h_256_avg]
     
     sites = [4, 8, 16, 32, 64, 128, 256]
-    # a_0 = h_256_avg / 256
-    a_0 = 1.83
+    a_0 = h_128_avg / 128
+    print(a_0)
+    a_0 = 1.732
     
     y = [l - h/a_0 for l, h in zip(sites, h_avg)]
     sites_log = np.log(sites)
@@ -600,7 +602,7 @@ def task_2_e():
     plt.xticks(fontsize=12, fontname='Times New Roman')
     plt.yticks(fontsize=12, fontname='Times New Roman')
     plt.xlim(1, 6)
-    plt.ylim(-1, 3)
+    plt.ylim(-1.25, 1)
     plt.savefig('Plots/Task2/task2e.png')
     plt.show()
 
@@ -655,51 +657,66 @@ def task_2_f():
 def task_2_g(compute=False, plot=True):
     if compute:
         probabilities = []
-
+        
         heights, slopes, thresholds = initialise(size=4, p=0.5)
-        heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=16000, p=0.5)
+        heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_4 = Counter(map(int, h_1))
         probabilities_4 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_4.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_4.append(map_4[i]/sum(map_4.values()) if i in map_4.keys() else 0)
         print('Done with 4')
         heights, slopes, thresholds = initialise(size=8, p=0.5)
-        heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=32000, p=0.5)
+        heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_8 = Counter(map(int, h_1))
         probabilities_8 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_8.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_8.append(map_8[i]/sum(map_8.values()) if i in map_8.keys() else 0)
         print('Done with 8')
         heights, slopes, thresholds = initialise(size=16, p=0.5)
         heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_16 = Counter(map(int, h_1))
         probabilities_16 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_16.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_16.append(map_16[i]/sum(map_16.values()) if i in map_16.keys() else 0)
         print('Done with 16')
         heights, slopes, thresholds = initialise(size=32, p=0.5)
         heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_32 = Counter(map(int, h_1))
         probabilities_32 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_32.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_32.append(map_32[i]/sum(map_32.values()) if i in map_32.keys() else 0)
         print('Done with 32')
         heights, slopes, thresholds = initialise(size=64, p=0.5)
         heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=100000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_64 = Counter(map(int, h_1))
         probabilities_64 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_64.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_64.append(map_64[i]/sum(map_64.values()) if i in map_64.keys() else 0)
         print('Done with 64')
         heights, slopes, thresholds = initialise(size=128, p=0.5)
         heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=100000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_128 = Counter(map(int, h_1))
         probabilities_128 = []
-        k = [k for k in configs_counted.keys()]
-        for i in range(0, 257):
-            probabilities_128.append(len([k for k in configs_counted.keys() if k[0] == i]) / len(configs_counted.keys()))
+        for i in range(0, 513):
+            probabilities_128.append(map_128[i]/sum(map_128.values()) if i in map_128.keys() else 0)
         print('Done with 128')
-        probabilities = [probabilities_4, probabilities_8, probabilities_16, probabilities_32, probabilities_64, probabilities_128]
+        heights, slopes, thresholds = initialise(size=256, p=0.5)
+        heights, slopes, thresholds, h_1, sst, configs_counted, avalanches = drive_and_relax(heights, slopes, thresholds, grains=128000, p=0.5)
+        h_1 = h_1[int(sst):]
+        map_256 = Counter(map(int, h_1))
+        probabilities_256 = []
+        for i in range(0, 513):
+            probabilities_256.append(map_256[i]/sum(map_256.values()) if i in map_256.keys() else 0)
+        print('Done with 256')
+        probabilities = [probabilities_4, probabilities_8, probabilities_16, probabilities_32, probabilities_64, probabilities_128, probabilities_256]
         np.save(os.path.join('Numpy Files', 'Task 2g'), np.array(probabilities))  # Save data in a .npy file
+
         
     if plot:
         h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
@@ -708,14 +725,16 @@ def task_2_g(compute=False, plot=True):
         h_1_32, sst_32 = np.load('Task 2a: L=32, p=0.5.npy', allow_pickle=True)
         h_1_64, sst_64 = np.load('Task 2a: L=64, p=0.5.npy', allow_pickle=True)
         h_1_128, sst_128 = np.load('Task 2a: L=128, p=0.5.npy', allow_pickle=True)
+        h_1_256, sst_256 = np.load('Task 2a: L=256, p=0.5.npy', allow_pickle=True)
         h_4_std = np.std(h_1_4[sst_4:][::4])
         h_8_std = np.std(h_1_8[sst_8:][::8])
         h_16_std = np.std(h_1_16[sst_16:][::16])
         h_32_std = np.std(h_1_32[sst_32:][::32])
         h_64_std = np.std(h_1_64[sst_64:][::64])
         h_128_std = np.std(h_1_128[sst_128:][::128])
+        h_256_std = np.std(h_1_256[sst_256:][::16])
 
-        h = np.linspace(0, 256, 257)
+        h = np.linspace(0, 512, 513)
         probabilities = np.load('Task 2g.npy', allow_pickle=True)
         probabilities_4 = probabilities[0]
         probabilities_8 = probabilities[1]
@@ -723,26 +742,30 @@ def task_2_g(compute=False, plot=True):
         probabilities_32 = probabilities[3]
         probabilities_64 = probabilities[4]
         probabilities_128 = probabilities[5]
+        probabilities_256 = probabilities[6]
         avg_4 = sum([p*x for p, x in zip(probabilities_4, h)])
         avg_8 = sum([p*x for p, x in zip(probabilities_8, h)])
         avg_16 = sum([p*x for p, x in zip(probabilities_16, h)])
         avg_32 = sum([p*x for p, x in zip(probabilities_32, h)])
         avg_64 = sum([p*x for p, x in zip(probabilities_64, h)])
         avg_128 = sum([p*x for p, x in zip(probabilities_128, h)])
+        avg_256 = sum([p*x for p, x in zip(probabilities_256, h)])
+
         fig, ax = plt.subplots()
         params = {'legend.fontsize': 12}
-        plt.rcParams.update(params)
+        plt.rcParams.update(params) 
         matplotlib.rcParams['mathtext.fontset'] = 'custom'
         matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h, probabilities_4, label=r'$L=4, \: \langle{h_4}\rangle = $' + r'${}$'.format(str(round(avg_4, 2))))
-        plt.plot(h, probabilities_8, label=r'$L=8, \: \langle{h_8}\rangle = $' + r'${}$'.format(str(round(avg_8, 2))))
+        plt.plot(h, probabilities_4, label=r'$L=4, \: \langle{h_{4}}\rangle = $' + r'${}$'.format(str(round(avg_4, 2))))
+        plt.plot(h, probabilities_8, label=r'$L=8, \: \langle{h_{8}}\rangle = $' + r'${}$'.format(str(round(avg_8, 2))))
         plt.plot(h, probabilities_16, label=r'$L=16, \: \langle{h_{16}}\rangle = $' + r'${}$'.format(str(round(avg_16, 2))))
         plt.plot(h, probabilities_32, label=r'$L=32, \: \langle{h_{32}}\rangle = $' + r'${}$'.format(str(round(avg_32, 2))))
         plt.plot(h, probabilities_64, label=r'$L=64, \: \langle{h_{64}}\rangle = $' + r'${}$'.format(str(round(avg_64, 2))))
         plt.plot(h, probabilities_128, label=r'$L=128, \: \langle{h_{128}}\rangle = $' + r'${}$'.format(str(round(avg_128, 2))))
+        plt.plot(h, probabilities_256, label=r'$L=256, \: \langle{h_{256}}\rangle = $' + r'${}$'.format(str(round(avg_256, 2))))
         plt.legend()
         plt.xlabel('$\it{h}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{P(h; L)}$', fontname='Times New Roman', fontsize=17)
@@ -753,8 +776,8 @@ def task_2_g(compute=False, plot=True):
         plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(0, 250)
-        plt.ylim(0, 0.4)
+        plt.xlim(0, 500)
+        plt.ylim(0, 0.5)
         plt.savefig('Plots/Task2/task2g_b_i.png')
         plt.show()
 
@@ -766,14 +789,36 @@ def task_2_g(compute=False, plot=True):
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h/avg_4, probabilities_4*h_4_std, label=r'$L=4, \: \langle{h_4}\rangle = $' + r'$5.63$')
-        plt.plot(h/avg_8, probabilities_8*h_8_std, label=r'$L=8, \: \langle{h_8}\rangle = $' + r'$12.47$')
-        plt.plot(h/avg_16, probabilities_16*h_16_std, label=r'$L=16, \: \langle{h_{16}}\rangle = $' + r'$26.47$')
-        plt.plot(h/avg_32, probabilities_32*h_32_std, label=r'$L=32, \: \langle{h_{32}}\rangle = $' + r'$53.93$')
-        plt.plot(h/avg_64, probabilities_64*h_64_std, label=r'$L=64, \: \langle{h_{64}}\rangle = $' + r'$108.85$')
-        plt.plot(h/avg_128, probabilities_128*h_128_std, label=r'$L=128, \: \langle{h_{128}}\rangle = $' + r'$219.47$')
+        p_4_non_zero = [x for x in probabilities_4*h_4_std if x != 0]
+        p_8_non_zero = [x for x in probabilities_8*h_8_std if x != 0]
+        p_16_non_zero = [x for x in probabilities_16*h_16_std if x != 0]
+        p_32_non_zero = [x for x in probabilities_32*h_32_std if x != 0]
+        p_64_non_zero = [x for x in probabilities_64*h_64_std if x != 0]
+        p_128_non_zero = [x for x in probabilities_128*h_128_std if x != 0]
+        p_256_non_zero = [x for x in probabilities_256*h_256_std if x != 0]
+        skew_4, kur_4 = skew(p_4_non_zero), kurtosis(p_4_non_zero)
+        skew_8, kur_8 = skew(p_8_non_zero), kurtosis(p_8_non_zero)
+        skew_16, kur_16 = skew(p_16_non_zero), kurtosis(p_16_non_zero)
+        skew_32, kur_32 = skew(p_32_non_zero), kurtosis(p_32_non_zero)
+        skew_64, kur_64 = skew(p_64_non_zero), kurtosis(p_64_non_zero)
+        skew_128, kur_128 = skew(p_128_non_zero), kurtosis(p_128_non_zero)
+        skew_256, kur_256 = skew(p_256_non_zero), kurtosis(p_256_non_zero)
+
+        x = np.linspace(-4, 8, 1000)
+        f = lambda x: 1/(np.sqrt(2*np.pi)) * np.exp(-0.5*x**2)
+        y = f(x)
+
+        plt.plot((h-avg_4)/h_4_std, probabilities_4*h_4_std, 'x', label=r'$L=4:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_4, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_4, 2))))
+        plt.plot((h-avg_8)/h_8_std, probabilities_8*h_8_std, 'x', label=r'$L=8:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_8, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_8, 2))))
+        plt.plot((h-avg_16)/h_16_std, probabilities_16*h_16_std, 'x', label=r'$L=16:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_16, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_16, 2))))
+        plt.plot((h-avg_32)/h_32_std, probabilities_32*h_32_std, 'x', label=r'$L=32:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_32, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_32, 2))))
+        plt.plot((h-avg_64)/h_64_std, probabilities_64*h_64_std, 'x', label=r'$L=64:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_64, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_64, 2))))
+        plt.plot((h-avg_128)/h_128_std, probabilities_128*h_128_std, 'x', label=r'$L=128:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_128, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_128, 2))))
+        plt.plot((h-avg_256)/h_256_std, probabilities_256*h_256_std, 'x', label=r'$L=256:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_256, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_256, 2))))
+
+        plt.plot(x, y, '--', label=r'$Normal: \: \mu=0, \: \sigma=1$', linewidth=2, alpha=0.7, color='k')
         plt.legend()
-        plt.xlabel(r'$\it{h \: / \: \langle{h}\rangle}$', fontname='Times New Roman', fontsize=17)
+        plt.xlabel(r'$\it{(h - \langle{h}\rangle) \: / \: σ_h}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{P(h; L)\: * \: σ_h}$', fontname='Times New Roman', fontsize=17)
         plt.minorticks_on()
         ax.tick_params(direction='in')
@@ -782,7 +827,7 @@ def task_2_g(compute=False, plot=True):
         plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(0, 2)
+        plt.xlim(-4, 8)
         plt.ylim(0, 0.45)
         plt.savefig('Plots/Task2/task2g_b_ii.png')
         plt.show()
@@ -1022,8 +1067,8 @@ if __name__ == '__main__':
     # task_2_a(compute=False, plot=True)
     # task_2_b(compute=False, plot=True)
     # task_2_d(compute=False, plot=True)
-    # task_2_e()
+    task_2_e()
     # task_2_f()
     # task_2_g(compute=False, plot=True)
     # task_3_a(compute=False, plot=True)
-    task_3_b()
+    # task_3_b()
