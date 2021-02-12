@@ -609,7 +609,7 @@ def task_2_e():
     plt.xticks(fontsize=12, fontname='Times New Roman')
     plt.yticks(fontsize=12, fontname='Times New Roman')
     plt.xlim(1, 6)
-    plt.ylim(-1.25, 1)
+    plt.ylim(-1.5, 1.5)
     plt.savefig('Plots/Task2/task2e.png')
     plt.show()
 
@@ -943,11 +943,85 @@ def task_3_a(compute=True, plot=False):
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
         plt.xlim(1, 1e5)
-        plt.savefig('Plots/Task3/task3a_i.png')
+        plt.ylim(10e-6, 1)
+        plt.savefig('Plots/Task3/task3a_a_i.png')
         plt.show()
 
-        tau = 2.089
-        d = 1.5227
+        l = [4, 8, 16, 32, 64, 128, 256]
+        s_max_4 = max(avalanches[0])
+        s_max_8 = max(avalanches[1])
+        s_max_16 = max(avalanches[2])
+        s_max_32 = max(avalanches[3])
+        s_max_64 = max(avalanches[4])
+        s_max_128 = max(avalanches[5])
+        s_max_256 = max(avalanches[6])
+
+        s_max = [s_max_4, s_max_8, s_max_16, s_max_32, s_max_64, s_max_128, s_max_256]
+               
+        fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        s_max_log = np.log(s_max)
+        l_log = np.log(l)
+        fit_phase_1, cov_phase = np.polyfit(l_log, s_max_log, 1, cov=True)
+        p_phase = np.poly1d(fit_phase_1)
+        l_space_log = np.linspace(min(l_log), max(l_log), 500)
+        plt.plot(l_log, s_max_log, 'o', label=r'$data$')
+        plt.plot(l_space_log, p_phase(l_space_log), label=r'$fit: \: gradient={}$'.format(str(round(fit_phase_1[0], 3))))
+        plt.legend()
+        plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{log({s_{max}})}$', fontname='Times New Roman', fontsize=17)
+        plt.minorticks_on()
+        ax.tick_params(direction='in')
+        ax.tick_params(which='minor', direction='in')
+        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
+        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
+        plt.xticks(fontsize=12, fontname='Times New Roman')
+        plt.yticks(fontsize=12, fontname='Times New Roman')
+        plt.xlim(1, 6)
+        plt.ylim(2, 14)
+        plt.savefig('Plots/Task3/task3a_b_i.png')
+        plt.show()
+
+        s_256_log = np.log(x_256[:170])
+        y_256_log = np.log(y_256[:170])
+
+        fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        fit_phase_2, cov_phase = np.polyfit(s_256_log, y_256_log, 1, cov=True)
+        p_phase = np.poly1d(fit_phase_2)
+        s_space_log = np.linspace(min(s_256_log), max(s_256_log), 500)
+        plt.plot(s_256_log, y_256_log, 'o', label=r'$data$')
+        plt.plot(s_space_log, p_phase(s_space_log), label=r'$fit: \: gradient\equiv-\tau={}$'.format(str(round(fit_phase_2[0], 3))))
+        plt.legend()
+        plt.xlabel(r'$\it{log({s})}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{log({P(s; L)})}$', fontname='Times New Roman', fontsize=17)
+        plt.minorticks_on()
+        ax.tick_params(direction='in')
+        ax.tick_params(which='minor', direction='in')
+        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
+        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
+        plt.xticks(fontsize=12, fontname='Times New Roman')
+        plt.yticks(fontsize=12, fontname='Times New Roman')
+        plt.xlim(-1, 6)
+        plt.ylim(-10, -1)
+        plt.savefig('Plots/Task3/task3a_b_ii.png')
+        plt.show()
+
+        tau = -fit_phase_2[0]
+        d = fit_phase_1[0]
+
         x_4_log = x_4 / (4**d)
         x_8_log = x_8 / (8**d)
         x_16_log = x_16 / (16**d)
@@ -982,7 +1056,7 @@ def task_3_a(compute=True, plot=False):
         ax.set_yscale('log')
         plt.legend()
         plt.xlabel(r'$\it{s \: / \: L^{D}}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{ s^{-\tau_s} \tilde P_N(s)}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{ s^{\tau_s} \tilde P_N(s)}$', fontname='Times New Roman', fontsize=17)
         plt.minorticks_on()
         ax.tick_params(direction='in')
         ax.tick_params(which='minor', direction='in')
@@ -991,8 +1065,8 @@ def task_3_a(compute=True, plot=False):
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
         plt.xlim(10e-5, 10)
-        plt.ylim(10e-3, 1e5)
-        plt.savefig('Plots/Task3/task3a_ii.png')
+        plt.ylim(10e-3, 1e4)
+        plt.savefig('Plots/Task3/task3a_b_iii.png')
         plt.show()
 
 
@@ -1107,6 +1181,6 @@ if __name__ == '__main__':
     # task_2_d(compute=False, plot=True)
     # task_2_e()
     # task_2_f()
-    task_2_g(compute=False, plot=True)
-    # task_3_a(compute=False, plot=True)
+    # task_2_g(compute=False, plot=True)
+    task_3_a(compute=False, plot=True)
     # task_3_b()
