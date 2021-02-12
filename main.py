@@ -5,6 +5,7 @@ from collections import Counter
 import os
 from logbin_2020 import logbin
 from scipy.stats import skew, kurtosis
+import scipy.optimize as op
 
 
 def threshold_prob(p=0.5, n=1):
@@ -574,6 +575,12 @@ def task_2_e():
     a_0 = h_128_avg / 128
     print(a_0)
     a_0 = 1.732
+
+    def corrections(L, a0, a1, w1):              # optimise to ge the above params
+         return a0 - a1*L**-w1
+    
+    a_0, a_1, w_1 = op.curve_fit(corrections, sites, np.array(h_avg)/np.array(sites), bounds=([0,0,-10], [10,10,10]))[0]
+    print('a_0={}, w_1={}'.format(str(a_0), str(w_1)))
     
     y = [l - h/a_0 for l, h in zip(sites, h_avg)]
     sites_log = np.log(sites)
@@ -796,18 +803,50 @@ def task_2_g(compute=False, plot=True):
         p_64_non_zero = [x for x in probabilities_64*h_64_std if x != 0]
         p_128_non_zero = [x for x in probabilities_128*h_128_std if x != 0]
         p_256_non_zero = [x for x in probabilities_256*h_256_std if x != 0]
-        skew_4, kur_4 = skew(p_4_non_zero), kurtosis(p_4_non_zero)
-        skew_8, kur_8 = skew(p_8_non_zero), kurtosis(p_8_non_zero)
-        skew_16, kur_16 = skew(p_16_non_zero), kurtosis(p_16_non_zero)
-        skew_32, kur_32 = skew(p_32_non_zero), kurtosis(p_32_non_zero)
-        skew_64, kur_64 = skew(p_64_non_zero), kurtosis(p_64_non_zero)
-        skew_128, kur_128 = skew(p_128_non_zero), kurtosis(p_128_non_zero)
-        skew_256, kur_256 = skew(p_256_non_zero), kurtosis(p_256_non_zero)
 
-        x = np.linspace(-4, 8, 1000)
+        ind_4_start = next((i for i, x in enumerate(probabilities_4*h_4_std) if x!=0), None)
+        ind_4_end = ind_4_start + len(p_4_non_zero)
+        x_4_non_zero = ((h-avg_4)/h_4_std)[ind_4_start:ind_4_end]
+        ind_8_start = next((i for i, x in enumerate(probabilities_8*h_8_std) if x!=0), None)
+        ind_8_end = ind_8_start + len(p_8_non_zero)
+        x_8_non_zero = ((h-avg_8)/h_8_std)[ind_8_start:ind_8_end]
+        ind_16_start = next((i for i, x in enumerate(probabilities_16*h_16_std) if x!=0), None)
+        ind_16_end = ind_16_start + len(p_16_non_zero)
+        x_16_non_zero = ((h-avg_16)/h_16_std)[ind_16_start:ind_16_end]
+        ind_32_start = next((i for i, x in enumerate(probabilities_32*h_32_std) if x!=0), None)
+        ind_32_end = ind_32_start + len(p_32_non_zero)
+        x_32_non_zero = ((h-avg_32)/h_32_std)[ind_32_start:ind_32_end]
+        ind_64_start = next((i for i, x in enumerate(probabilities_64*h_64_std) if x!=0), None)
+        ind_64_end = ind_64_start + len(p_64_non_zero)
+        x_64_non_zero = ((h-avg_64)/h_64_std)[ind_64_start:ind_64_end]
+        ind_128_start = next((i for i, x in enumerate(probabilities_128*h_128_std) if x!=0), None)
+        ind_128_end = ind_128_start + len(p_128_non_zero)
+        x_128_non_zero = ((h-avg_128)/h_128_std)[ind_128_start:ind_128_end]
+        ind_256_start = next((i for i, x in enumerate(probabilities_256*h_256_std) if x!=0), None)
+        ind_256_end = ind_256_start + len(p_256_non_zero)
+        x_256_non_zero = ((h-avg_256)/h_256_std)[ind_256_start:ind_256_end]
+
+        x = np.linspace(-4, 8, 513)
         f = lambda x: 1/(np.sqrt(2*np.pi)) * np.exp(-0.5*x**2)
         y = f(x)
 
+        dif_sq_4 = sum([(p-f(x))**2/f(x) for p, x in zip(p_4_non_zero, x_4_non_zero)])
+        dif_sq_8 = sum([(p-f(x))**2/f(x) for p, x in zip(p_8_non_zero, x_8_non_zero)])
+        dif_sq_16 = sum([(p-f(x))**2/f(x) for p, x in zip(p_16_non_zero, x_16_non_zero)])
+        dif_sq_32 = sum([(p-f(x))**2/f(x) for p, x in zip(p_32_non_zero, x_32_non_zero)])
+        dif_sq_64 = sum([(p-f(x))**2/f(x) for p, x in zip(p_64_non_zero, x_64_non_zero)])
+        dif_sq_128 = sum([(p-f(x))**2/f(x) for p, x in zip(p_128_non_zero, x_128_non_zero)])
+        dif_sq_256 = sum([(p-f(x))**2/f(x) for p, x in zip(p_256_non_zero, x_256_non_zero)])
+        print(r'$\chi^2 values:$', dif_sq_4, dif_sq_8, dif_sq_16, dif_sq_32, dif_sq_64, dif_sq_128, dif_sq_256)
+
+        skew_4, kur_4 = skew(h_1_4[sst_4:]), kurtosis(h_1_4[sst_4:])
+        skew_8, kur_8 = skew(h_1_8[sst_8:]), kurtosis(h_1_8[sst_8:])
+        skew_16, kur_16 = skew(h_1_16[sst_16:]), kurtosis(h_1_16[sst_16:])
+        skew_32, kur_32 = skew(h_1_32[sst_32:]), kurtosis(h_1_32[sst_32:])
+        skew_64, kur_64 = skew(h_1_64[sst_64:]), kurtosis(h_1_64[sst_64:])
+        skew_128, kur_128 = skew(h_1_128[sst_128:]), kurtosis(h_1_128[sst_128:])
+        skew_256, kur_256 = skew(h_1_256[sst_256:]), kurtosis(h_1_256[sst_256:])
+        
         plt.plot((h-avg_4)/h_4_std, probabilities_4*h_4_std, 'x', label=r'$L=4:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_4, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_4, 2))))
         plt.plot((h-avg_8)/h_8_std, probabilities_8*h_8_std, 'x', label=r'$L=8:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_8, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_8, 2))))
         plt.plot((h-avg_16)/h_16_std, probabilities_16*h_16_std, 'x', label=r'$L=16:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_16, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_16, 2))))
@@ -815,8 +854,7 @@ def task_2_g(compute=False, plot=True):
         plt.plot((h-avg_64)/h_64_std, probabilities_64*h_64_std, 'x', label=r'$L=64:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_64, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_64, 2))))
         plt.plot((h-avg_128)/h_128_std, probabilities_128*h_128_std, 'x', label=r'$L=128:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_128, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_128, 2))))
         plt.plot((h-avg_256)/h_256_std, probabilities_256*h_256_std, 'x', label=r'$L=256:$' + ' ' + r'$s=$' + r'${}$'.format(str(round(skew_256, 2))) + ', ' + r'$k=$' + r'${}$'.format(str(round(kur_256, 2))))
-
-        plt.plot(x, y, '--', label=r'$Normal: \: \mu=0, \: \sigma=1$', linewidth=2, alpha=0.7, color='k')
+        plt.plot(x, y, '--', label=r'$Normal: \: \mu=0, \: \sigma=1$' +'\n\t    ' + r'$s=0, \: k=0$', linewidth=2, alpha=0.7, color='k')
         plt.legend()
         plt.xlabel(r'$\it{(h - \langle{h}\rangle) \: / \: σ_h}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{P(h; L)\: * \: σ_h}$', fontname='Times New Roman', fontsize=17)
@@ -1067,8 +1105,8 @@ if __name__ == '__main__':
     # task_2_a(compute=False, plot=True)
     # task_2_b(compute=False, plot=True)
     # task_2_d(compute=False, plot=True)
-    task_2_e()
+    # task_2_e()
     # task_2_f()
-    # task_2_g(compute=False, plot=True)
+    task_2_g(compute=False, plot=True)
     # task_3_a(compute=False, plot=True)
     # task_3_b()
