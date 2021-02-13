@@ -907,13 +907,13 @@ def task_3_a(compute=True, plot=False):
         
     if plot:
         avalanches = np.load('Task 3a.npy', allow_pickle=True)
-        x_4, y_4 = logbin(avalanches[0])
-        x_8, y_8 = logbin(avalanches[1])
-        x_16, y_16 = logbin(avalanches[2])
-        x_32, y_32 = logbin(avalanches[3])
-        x_64, y_64 = logbin(avalanches[4])
-        x_128, y_128 = logbin(avalanches[5])
-        x_256, y_256 = logbin(avalanches[6])
+        x_4, y_4 = logbin(avalanches[0], scale=1.5)
+        x_8, y_8 = logbin(avalanches[1], scale=1.5)
+        x_16, y_16 = logbin(avalanches[2], scale=1.5)
+        x_32, y_32 = logbin(avalanches[3], scale=1.5)
+        x_64, y_64 = logbin(avalanches[4], scale=1.5)
+        x_128, y_128 = logbin(avalanches[5], scale=1.5)
+        x_256, y_256 = logbin(avalanches[6], scale=1.5)
 
         fig, ax = plt.subplots()
         params = {'legend.fontsize': 12}
@@ -942,8 +942,8 @@ def task_3_a(compute=True, plot=False):
         plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(1, 1e5)
-        plt.ylim(10e-6, 1)
+        plt.xlim(1, 1e6)
+        plt.ylim(10e-10, 10)
         plt.savefig('Plots/Task3/task3a_a_i.png')
         plt.show()
 
@@ -988,8 +988,9 @@ def task_3_a(compute=True, plot=False):
         plt.savefig('Plots/Task3/task3a_b_i.png')
         plt.show()
 
-        s_256_log = np.log(x_256[:170])
-        y_256_log = np.log(y_256[:170])
+        x_256_1, y_256_1 = logbin(avalanches[6], scale=1)
+        s_256_log = np.log(x_256_1[:170])
+        y_256_log = np.log(y_256_1[:170])
 
         fig, ax = plt.subplots()
         params = {'legend.fontsize': 12}
@@ -1065,7 +1066,7 @@ def task_3_a(compute=True, plot=False):
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
         plt.xlim(10e-5, 10)
-        plt.ylim(10e-3, 1e4)
+        plt.ylim(10e-4, 1)
         plt.savefig('Plots/Task3/task3a_b_iii.png')
         plt.show()
 
