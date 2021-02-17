@@ -22,7 +22,7 @@ To run the code you need to consider 2 arguments:
 
 The first argument is necessary and identifies which task to run. If the 2nd argument is present then the code will run the Oslo model to produce the data needed for that task. If the 2nd argument is not present then it will use the already-made data to produce the plots for that task. It takes a lot of time (5-60 minutes to produce the data, so would advise to just plot, aka do NOT includethe -e argument).
 
-Example commands:
+### Example commands: ###
     
     1. python3 main.py -t 2e
     2. python3 main.py -t 2g -e
@@ -30,9 +30,9 @@ Example commands:
 
 ## Code Structure: ##
 
-The code contains 4 main methods that define the Oslo model and one method for each task, which are listed in the project script 'CandNProject.pdf'. \
+The code contains 4 main methods that define the Oslo model and one method for each task, which are listed in the project script 'CandNProject.pdf'.
 
-The 4 main methods are:
+### The 4 main methods are: ###
 
     1. threshold_prob: Returns random threshold value by determining the probability for each
     2. initialise: Initialises the sites of a system of given size L and threshold probability p
