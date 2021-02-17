@@ -6,6 +6,7 @@ import os
 from logbin_2020 import logbin
 from scipy.stats import skew, kurtosis
 import scipy.optimize as op
+import argparse
 
 
 def threshold_prob(p=0.5, n=1):
@@ -16,6 +17,7 @@ def threshold_prob(p=0.5, n=1):
 
 
 def initialise(size=4, p=0.5):
+    """ Initialises the sites of a system of given size L and threshold probability p """
     heights = np.zeros(size)
     slopes = np.zeros(size)
     thresholds = threshold_prob(p, n=size)
@@ -23,10 +25,16 @@ def initialise(size=4, p=0.5):
 
 
 def update_slopes(heights):
+    """ Updates all the threshold values of the system """
     return abs(np.diff(heights, append=[0]))
 
 
 def drive_and_relax(heights, slopes, thresholds, grains=16, p=0.5):
+    """ 
+        Keeps driving and relaxing a system achieving a final stable configuration until 
+        a given number of grains have been added to the system, with threshold probability p
+    """
+
     avalanches = []  # List holding the avalanche sizes
     h_1 = []  # List holding the time-series heights at site s=1
     steady_state = False  # Model starts at transient state
@@ -43,7 +51,7 @@ def drive_and_relax(heights, slopes, thresholds, grains=16, p=0.5):
         else:
             while not ((slopes - thresholds) <= 0).all():  # Keeps relaxing supercritical sites until all slopes are valid
                 for i in range(len(heights)):
-                    if slopes[i] > thresholds[i]:
+                    if slopes[i] > thresholds[i]:  # Condition for relaxing a supercritical site
                         heights[i] -= 1
                         if i != len(heights) - 1:
                             heights[i+1] += 1
@@ -62,7 +70,7 @@ def drive_and_relax(heights, slopes, thresholds, grains=16, p=0.5):
         h_1.append(heights[0])
         height_configs.append(heights.tolist())
     
-    height_configs = height_configs[int(steady_state_time):]  # For Task 1 delete this line
+    height_configs = height_configs[int(steady_state_time):]  # For Task 1 (counting configurations) delete this line
     height_configs = np.array(height_configs)
     configs_counted = Counter(map(tuple, height_configs))  # make a map counting occurence of each configuration of heights
     no_reccurant = len([k for k in configs_counted.keys() if configs_counted[k]>1])
@@ -146,9 +154,9 @@ def task_1(compute=True, plot=False):
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h_1_0, label=r'$p=0, \langle{steady-state}\rangle=$' + r'${}$'.format(str(np.average(h_1_0[300:]))))
-        plt.plot(h_1_0_5, label=r'$p=0.5, \langle{steady-state}\rangle=$' + r'${}$'.format(str(round(np.average(h_1_0_5[300:]), 5))))
-        plt.plot(h_1_1, label=r'$p=1, \langle{steady-state}\rangle=$' + r'${}$'.format(str(np.average(h_1_1[300:]))))
+        plt.plot(h_1_0, label=r'$p=0, \langle{h(t>t_c; \: L)}\rangle=$' + r'${}$'.format(str(np.average(h_1_0[300:]))))
+        plt.plot(h_1_0_5, label=r'$p=0.5, \langle{h(t>t_c; \: L)}\rangle=$' + r'${}$'.format(str(round(np.average(h_1_0_5[300:]), 3))))
+        plt.plot(h_1_1, label=r'$p=1, \langle{h(t>t_c; \: L)}\rangle=$' + r'${}$'.format(str(np.average(h_1_1[300:]))))
         plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{h(t; L)}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -160,7 +168,7 @@ def task_1(compute=True, plot=False):
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
         plt.ylim(0, 35)
-        plt.xlim(0, 4000)
+        plt.xlim(-100, 4000)
         plt.savefig('Plots/Task1/chaning_probability.png')
         plt.show()
 
@@ -181,7 +189,7 @@ def task_1(compute=True, plot=False):
         plt.xlabel('$\it{i}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel('$\it{z_i}$', fontname='Times New Roman', fontsize=20)
         plt.xlim([0, 35])
-        plt.ylim([0, 2.25])
+        plt.ylim([-0.1, 2.5])
         plt.legend()
         plt.minorticks_on()
         ax.tick_params(direction='in')
@@ -204,8 +212,8 @@ def task_1(compute=True, plot=False):
         matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
         matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(h_1_16, label=r'$L=16, \langle{steady-state}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_16[sst_16:]), 5))))
-        plt.plot(h_1_32, label=r'$L=32, \langle{steady-state}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_32[sst_32:]), 5))))
+        plt.plot(h_1_16, label=r'$L=16, \langle{h(t>t_c; \: L)}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_16[sst_16:]), 3))))
+        plt.plot(h_1_32, label=r'$L=32, \langle{h(t>t_c; \: L)}\rangle = $' + r'${}$'.format(str(round(np.average(h_1_32[sst_32:]), 3))))
         plt.xlabel('$\it{t}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{h(t; L)}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -217,7 +225,7 @@ def task_1(compute=True, plot=False):
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
         plt.ylim(0, 60)
-        plt.xlim(0, 4000)
+        plt.xlim(-100, 4000)
         plt.savefig('Plots/Task1/heights_at_site_1.png')
         plt.show()
 
@@ -237,8 +245,8 @@ def task_1(compute=True, plot=False):
         fit_phase, cov_phase = np.polyfit(log_l, log_avalanches_avg, 1, cov=True)
         p_phase = np.poly1d(fit_phase)
         l_fit = np.linspace(min(log_l), max(log_l), 1000)
-        plt.plot(log_l, log_avalanches_avg, 'o', label=r'$\langle{s}\rangle$' + ' ' + r'$obtained$')
-        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 3))))
+        plt.plot(log_l, log_avalanches_avg, 'o', label=r'$data$')
+        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + r'${}$'.format(str(round(fit_phase[0], 3))))
         plt.xlabel('$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{log({\langle{s}\rangle})}$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -256,6 +264,7 @@ def task_1(compute=True, plot=False):
 
 
 def check_recurrent_configs(size=4, grains=100000):
+    """ Checks the total number of recurrent configurations for a given system """
     heights, slopes, thresholds = initialise(size=size, p=0.5)
     heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=grains, p=0.5)
     return reccur
@@ -263,6 +272,7 @@ def check_recurrent_configs(size=4, grains=100000):
 
 def task_2_a(compute=True, plot=False):
     if compute:
+        """ Obtains the pile height for a given number of grains to be added """
         heights, slopes, thresholds = initialise(size=4, p=0.5)
         heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=64000, p=0.5)
         np.save(os.path.join('Numpy Files', 'Task 2a: L=4, p=0.5'), np.array([h_1, sst]))  # Save data in a .npy file
@@ -286,6 +296,7 @@ def task_2_a(compute=True, plot=False):
         np.save(os.path.join('Numpy Files', 'Task 2a: L=256, p=0.5'), np.array([h_1, sst]))  # Save data in a .npy file
 
     if plot:
+        """ Plots the pile height for a given number of grains to be added """
         h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
         h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
         h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
@@ -330,6 +341,7 @@ def task_2_b(compute=True, plot=False):
     t = 0
     
     if compute:
+        """ Computes the mean cross-over times for different sized systems """
         for i in range(5):
             heights, slopes, thresholds = initialise(size=4, p=0.5)
             heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=500, p=0.5)
@@ -381,6 +393,7 @@ def task_2_b(compute=True, plot=False):
         np.save(os.path.join('Numpy Files', 'Task 2b'), np.array(avg_cross_over_times))  # Save data in a .npy file
 
     if plot:
+        """ Plots the mean cross-over times for different sized systems """
         avg_cross_over_times = np.load('Task 2b.npy', allow_pickle=True)
         print(avg_cross_over_times.tolist())
         fig, ax = plt.subplots()
@@ -391,7 +404,7 @@ def task_2_b(compute=True, plot=False):
         matplotlib.rcParams['mathtext.fontset'] = 'stix'
         plt.plot(l, avg_cross_over_times, 'o')
         plt.xlabel(r'$\it{L}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\langle{t_c}\rangle$', fontname='Times New Roman', fontsize=18)
+        plt.ylabel(r'$data$', fontname='Times New Roman', fontsize=18)
         plt.minorticks_on()
         ax.tick_params(direction='in')
         ax.tick_params(which='minor', direction='in')
@@ -404,6 +417,7 @@ def task_2_b(compute=True, plot=False):
         plt.savefig('Plots/Task2/task2b.png')
         plt.show()
 
+        """ Plots the mean cross-over times for different sized systems on a double-log plot """
         l_log = np.log(l)
         avg_cross_over_times_log = np.log(avg_cross_over_times)
         fig, ax = plt.subplots()
@@ -417,8 +431,8 @@ def task_2_b(compute=True, plot=False):
         fit_phase, cov_phase = np.polyfit(l_log, avg_cross_over_times_log, 1, cov=True)
         p_phase = np.poly1d(fit_phase)
         l_fit = np.linspace(min(l_log), max(l_log), 1000)
-        plt.plot(l_log, avg_cross_over_times_log, 'o', label=r'$\langle{t_c}\rangle$')
-        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 2))))
+        plt.plot(l_log, avg_cross_over_times_log, 'o', label=r'$data$')
+        plt.plot(l_fit, p_phase(l_fit), label=r'$fit: $' + r'$gradient=$' + ' ' + r'${}$'.format(str(round(fit_phase[0], 4))))
         plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$log({\langle{t_c}\rangle})$', fontname='Times New Roman', fontsize=18)
         plt.legend()
@@ -437,6 +451,7 @@ def task_2_b(compute=True, plot=False):
 
 def task_2_d(compute=True, plot=False):
     if compute:
+        """ Produces a data collapse of the pile height for different sized systems """
         heights_4 = np.zeros(64000)
         for i in range(5):
             heights, slopes, thresholds = initialise(size=4, p=0.5)
@@ -495,6 +510,7 @@ def task_2_d(compute=True, plot=False):
         print('Done with 256')
     
     if plot:
+        """ Plots a data collapse of the pile height for different sized systems """
         t = np.linspace(1, 64000, 64000)
         t_4 = t/(4**2)
         t_8 = t/(8**2)
@@ -517,9 +533,10 @@ def task_2_d(compute=True, plot=False):
         h_1_128 /= 128
         h_1_256 = np.load('Task 2d: L=256, p=0.5.npy', allow_pickle=True)
         h_1_256 /= 256
+        
         t_s = np.linspace(0, 0.88, 881)
-        x_sq = 1.75*np.sqrt(t_s)
-        x_sq_cor = 1.75*np.sqrt(t_s) + 0.095*t_s
+        x_sq = 1.8355*np.sqrt(t_s)
+        
         fig, ax = plt.subplots()
         params = {'legend.fontsize': 12}
         plt.rcParams.update(params)
@@ -535,8 +552,7 @@ def task_2_d(compute=True, plot=False):
         plt.plot(t_64, h_1_64, label=r'$L=64$')
         plt.plot(t_128, h_1_128, label=r'$L=128$')
         plt.plot(t_256, h_1_256, label=r'$L=256$')
-        plt.plot(t_s, x_sq, '--', label=r'$y= 1.72\sqrt{t}$', alpha=0.9, linewidth=2, color='k')
-        plt.plot(t_s, x_sq_cor, '--', label=r'$y_c= 1.72\sqrt{t}\: + 0.095t$', alpha=0.9, linewidth=2, color='k')
+        plt.plot(t_s, x_sq, '--', label=r'$y= 1.8355t^{1/2}$', alpha=0.9, linewidth=2, color='k')
         plt.xlabel('$\it{t}$' + ' ' + r'$/L^{2}$', fontname='Times New Roman', fontsize=17)
         plt.ylabel(r'$\it{\tilde h(t; L)}$' + ' / ' + r'$L$', fontname='Times New Roman', fontsize=17)
         plt.legend()
@@ -547,13 +563,15 @@ def task_2_d(compute=True, plot=False):
         plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
         plt.xticks(fontsize=12, fontname='Times New Roman')
         plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(0, 1.2)
+        plt.xlim(-0.05, 1.2)
         plt.ylim(0, 2)
         plt.savefig('Plots/Task2/task2d.png')
         plt.show()
 
 
 def task_2_e():
+    """ Obtain and plot a_0, a_1 and w_1 (2nd order error-correction terms for the average steady-state height """
+    h_1_2, sst_2 = np.load('Task 2a: L=2, p=0.5.npy', allow_pickle=True)
     h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
     h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
     h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
@@ -562,28 +580,30 @@ def task_2_e():
     h_1_128, sst_128 = np.load('Task 2a: L=128, p=0.5.npy', allow_pickle=True)
     h_1_256, sst_256 = np.load('Task 2a: L=256, p=0.5.npy', allow_pickle=True)
 
-    h_4_avg = np.average(h_1_4[sst_4:][::4])
-    h_8_avg = np.average(h_1_8[sst_8:][::8])
-    h_16_avg = np.average(h_1_16[sst_16:][::16])
-    h_32_avg = np.average(h_1_32[sst_32:][::32])
-    h_64_avg = np.average(h_1_64[sst_64:][::64])
-    h_128_avg = np.average(h_1_128[sst_128:][::128])
-    h_256_avg = np.average(h_1_256[sst_256:][::256])
-    h_avg = [h_4_avg, h_8_avg, h_16_avg, h_32_avg, h_64_avg, h_128_avg, h_256_avg]
+    h_2_avg = np.average(h_1_2[int(sst_2):])
+    h_4_avg = np.average(h_1_4[sst_4:])
+    h_8_avg = np.average(h_1_8[sst_8:])
+    h_16_avg = np.average(h_1_16[sst_16:])
+    h_32_avg = np.average(h_1_32[sst_32:])
+    h_64_avg = np.average(h_1_64[sst_64:])
+    h_128_avg = np.average(h_1_128[sst_128:])
+    h_256_avg = np.average(h_1_256[sst_256:])
+    h_avg = [h_2_avg, h_4_avg, h_8_avg, h_16_avg, h_32_avg, h_64_avg, h_128_avg, h_256_avg]
     
-    sites = [4, 8, 16, 32, 64, 128, 256]
-    a_0 = h_128_avg / 128
-    print(a_0)
-    a_0 = 1.732
+    sites = [2, 4, 8, 16, 32, 64, 128, 256]
 
-    def corrections(L, a0, a1, w1):              # optimise to ge the above params
-         return a0 - a1*L**-w1
+    a_0 = h_256_avg / 256
+    print(a_0)
+
+    def corr_terms(l, a_0, a_1, w_1):  # Function in script for 2nd order correction terms to steady-state height
+         return a_0 - a_1*l**-w_1
     
-    a_0, a_1, w_1 = op.curve_fit(corrections, sites, np.array(h_avg)/np.array(sites), bounds=([0,0,-10], [10,10,10]))[0]
-    print('a_0={}, w_1={}'.format(str(a_0), str(w_1)))
+    # Use scipy's curve-fitting function to obtain the parameters of the relation
+    a_0_n, a_1_n, w_1_n = op.curve_fit(corr_terms, sites, np.array(h_avg)/np.array(sites), bounds=([0,0,-10], [10,10,10]))[0]
+    print('a_0={}, w_1={}'.format(str(a_0_n), str(w_1_n)))
     
-    y = [l - h/a_0 for l, h in zip(sites, h_avg)]
-    sites_log = np.log(sites)
+    y = [l - h/a_0 for l, h in zip(sites[:4], h_avg[:4])]
+    sites_log = np.log(sites[:4])
     y_log = np.log(y)
     fig, ax = plt.subplots()
     params = {'legend.fontsize': 12}
@@ -608,13 +628,45 @@ def task_2_e():
     plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
     plt.xticks(fontsize=12, fontname='Times New Roman')
     plt.yticks(fontsize=12, fontname='Times New Roman')
-    plt.xlim(1, 6)
-    plt.ylim(-1.5, 1.5)
-    plt.savefig('Plots/Task2/task2e.png')
+    plt.xlim(0.5, 3)
+    plt.ylim(-1.6, -0.4)
+    plt.savefig('Plots/Task2/task2e_i.png')
+    plt.show()
+    
+    a_1 = (a_0*8 - h_8_avg) / (a_0 * 8**(1-0.5065))
+    print(a_1)
+    actual_data = [h/l for h, l in zip(h_avg, sites)]
+    curve_fit_data = [a_0_n - a_0_n*a_1_n*l**-w_1_n for l in sites]
+    method_data = [a_0 - a_0*a_1*l**-0.5065 for l in sites]
+    fig, ax = plt.subplots()
+    params = {'legend.fontsize': 12}
+    plt.rcParams.update(params)
+    matplotlib.rcParams['mathtext.fontset'] = 'custom'
+    matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+    matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+    matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    plt.plot(sites, actual_data, 'o', label=r'$Data$')
+    plt.plot(sites, curve_fit_data, label=r'$Scipy.Optimize.Curvefit \: Fit$')
+    plt.plot(sites, method_data, label=r'$Devised \: Procedure \: Fit$')
+    plt.xlabel(r'$\it{L}$', fontname='Times New Roman', fontsize=17)
+    plt.ylabel(r'$\it{\langle{h(t; L)}\rangle_t \: / \: L}$', fontname='Times New Roman', fontsize=18)
+    plt.legend()
+    plt.minorticks_on()
+    ax.tick_params(direction='in')
+    ax.tick_params(which='minor', direction='in')
+    plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.6)
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+    plt.xticks(fontsize=12, fontname='Times New Roman')
+    plt.yticks(fontsize=12, fontname='Times New Roman')
+    plt.xlim(-2, 70)
+    plt.ylim(1.35, 1.75)
+    plt.savefig('Plots/Task2/task2e_ii.png')
     plt.show()
 
 
 def task_2_f():
+    """ Obtain and plot the scaling of the standard deviation of the steady-state pile height """
     h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
     h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
     h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
@@ -629,9 +681,11 @@ def task_2_f():
     h_64_std = np.std(h_1_64[sst_64:][::64])
     h_128_std = np.std(h_1_128[sst_128:][::128])
     h_std = [h_4_std, h_8_std, h_16_std, h_32_std, h_64_std, h_128_std]
+    
     sites = [4, 8, 16, 32, 64, 128]
     sites_log = np.log(sites)
     std_log = np.log(h_std)
+    
     fig, ax = plt.subplots()
     params = {'legend.fontsize': 12}
     plt.rcParams.update(params)
@@ -663,6 +717,7 @@ def task_2_f():
 
 def task_2_g(compute=False, plot=True):
     if compute:
+        """ Obtain the heigth probability distributions and their data collapse for different system sizes """
         probabilities = []
         
         heights, slopes, thresholds = initialise(size=4, p=0.5)
@@ -726,6 +781,7 @@ def task_2_g(compute=False, plot=True):
 
         
     if plot:
+        """ Plot the heigth probability distributions for different system sizes """
         h_1_4, sst_4 = np.load('Task 2a: L=4, p=0.5.npy', allow_pickle=True)
         h_1_8, sst_8 = np.load('Task 2a: L=8, p=0.5.npy', allow_pickle=True)
         h_1_16, sst_16 = np.load('Task 2a: L=16, p=0.5.npy', allow_pickle=True)
@@ -758,6 +814,7 @@ def task_2_g(compute=False, plot=True):
         avg_128 = sum([p*x for p, x in zip(probabilities_128, h)])
         avg_256 = sum([p*x for p, x in zip(probabilities_256, h)])
 
+        """ Obtain the data collapse of the heigth probability distributions for different system sizes """
         fig, ax = plt.subplots()
         params = {'legend.fontsize': 12}
         plt.rcParams.update(params) 
@@ -827,7 +884,7 @@ def task_2_g(compute=False, plot=True):
         x_256_non_zero = ((h-avg_256)/h_256_std)[ind_256_start:ind_256_end]
 
         x = np.linspace(-4, 8, 513)
-        f = lambda x: 1/(np.sqrt(2*np.pi)) * np.exp(-0.5*x**2)
+        f = lambda x: 1/(np.sqrt(2*np.pi)) * np.exp(-0.5*x**2)  # Normal distribution
         y = f(x)
 
         dif_sq_4 = sum([(p-f(x))**2/f(x) for p, x in zip(p_4_non_zero, x_4_non_zero)])
@@ -857,7 +914,7 @@ def task_2_g(compute=False, plot=True):
         plt.plot(x, y, '--', label=r'$Normal: \: \mu=0, \: \sigma=1$' +'\n\t    ' + r'$s=0, \: k=0$', linewidth=2, alpha=0.7, color='k')
         plt.legend()
         plt.xlabel(r'$\it{(h - \langle{h}\rangle) \: / \: σ_h}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{P(h; L)\: * \: σ_h}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{σ_h \: P(h; L)}$', fontname='Times New Roman', fontsize=17)
         plt.minorticks_on()
         ax.tick_params(direction='in')
         ax.tick_params(which='minor', direction='in')
@@ -870,9 +927,43 @@ def task_2_g(compute=False, plot=True):
         plt.savefig('Plots/Task2/task2g_b_ii.png')
         plt.show()
 
+        fig, ax = plt.subplots()
+        params = {'legend.fontsize': 12}
+        plt.rcParams.update(params)
+        matplotlib.rcParams['mathtext.fontset'] = 'custom'
+        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+        matplotlib.rcParams['mathtext.fontset'] = 'stix'
+        plt.plot((h-avg_4)/h_4_std, np.log(probabilities_4*h_4_std), 'x', label=r'$L=4$')
+        plt.plot((h-avg_8)/h_8_std, np.log(probabilities_8*h_8_std), 'x', label=r'$L=8$')
+        plt.plot((h-avg_16)/h_16_std, np.log(probabilities_16*h_16_std), 'x', label=r'$L=16$')
+        plt.plot((h-avg_32)/h_32_std, np.log(probabilities_32*h_32_std), 'x', label=r'$L=32$')
+        plt.plot((h-avg_64)/h_64_std, np.log(probabilities_64*h_64_std), 'x', label=r'$L=64$')
+        plt.plot((h-avg_128)/h_128_std, np.log(probabilities_128*h_128_std), 'x', label=r'$L=128$')
+        plt.plot((h-avg_256)/h_256_std, np.log(probabilities_256*h_256_std), 'x', label=r'$L=256$')
+        x = np.linspace(-5, 8, 513)
+        y = f(x)
+        plt.plot(x, np.log(y), '--', label=r'$Normal$')
+        plt.legend()
+        plt.xlabel(r'$\it{(h - \langle{h}\rangle) \: / \: σ_h}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{log(σ_h \: P(h; L))}$', fontname='Times New Roman', fontsize=17)
+        plt.minorticks_on()
+        ax.tick_params(direction='in')
+        ax.tick_params(which='minor', direction='in')
+        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.6)
+        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.2)
+        plt.xticks(fontsize=12, fontname='Times New Roman')
+        plt.yticks(fontsize=12, fontname='Times New Roman')
+        plt.xlim(-5, 8)
+        plt.ylim(-12, 0)
+        plt.savefig('Plots/Task2/task2g_b_iii.png')
+        plt.show()
+
 
 def task_3_a(compute=True, plot=False):
     if compute:
+        """ Obtain the avalanche size probabilities for different system sizes """
         heights, slopes, thresholds = initialise(size=4, p=0.5)
         heights, slopes, thresholds, h_1, sst, reccur, avalanches = drive_and_relax(heights, slopes, thresholds, grains=128000, p=0.5)
         avalanches_4 = avalanches[int(sst):]
@@ -906,6 +997,7 @@ def task_3_a(compute=True, plot=False):
         np.save(os.path.join('Numpy Files', 'Task 3a'), np.array(avalanches_total))  # Save data in a .npy file
         
     if plot:
+        """ Plot the avalanche size probabilities and their data collapse """
         avalanches = np.load('Task 3a.npy', allow_pickle=True)
         x_4, y_4 = logbin(avalanches[0], scale=1.5)
         x_8, y_8 = logbin(avalanches[1], scale=1.5)
@@ -975,7 +1067,7 @@ def task_3_a(compute=True, plot=False):
         plt.plot(l_space_log, p_phase(l_space_log), label=r'$fit: \: gradient={}$'.format(str(round(fit_phase_1[0], 3))))
         plt.legend()
         plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{log({s_{max}})}$', fontname='Times New Roman', fontsize=17)
+        plt.ylabel(r'$\it{log({s_{c}})}$', fontname='Times New Roman', fontsize=17)
         plt.minorticks_on()
         ax.tick_params(direction='in')
         ax.tick_params(which='minor', direction='in')
@@ -1072,116 +1164,163 @@ def task_3_a(compute=True, plot=False):
 
 
 def task_3_b():
-        avalanches = np.load('Task 3a.npy', allow_pickle=True)
+    """ Perform k-th moment analysis to obtain D and \tau """
+    
+    avalanches = np.load('Task 3a.npy', allow_pickle=True)
+    
+    k_mom_4 = [np.average(np.power(avalanches[0], i)) for i in range(1, 5)]
+    k_mom_8 = [np.average(np.power(avalanches[1], i)) for i in range(1, 5)]
+    k_mom_16 = [np.average(np.power(avalanches[2], i)) for i in range(1, 5)]
+    k_mom_32 = [np.average(np.power(avalanches[3], i)) for i in range(1, 5)]
+    k_mom_64 = [np.average(np.power(avalanches[4], i)) for i in range(1, 5)]
+    k_mom_128 = [np.average(np.power(avalanches[5], i)) for i in range(1, 5)]
+    k_mom_256 = [np.average(np.power(avalanches[6], i)) for i in range(1, 5)]
+
+    k_1 = [k_mom_4[0], k_mom_8[0], k_mom_16[0], k_mom_32[0], k_mom_64[0], k_mom_128[0], k_mom_256[0]]
+    k_2 = [k_mom_4[1], k_mom_8[1], k_mom_16[1], k_mom_32[1], k_mom_64[1], k_mom_128[1], k_mom_256[1]]
+    k_3 = [k_mom_4[2], k_mom_8[2], k_mom_16[2], k_mom_32[2], k_mom_64[2], k_mom_128[2], k_mom_256[2]]
+    k_4 = [k_mom_4[3], k_mom_8[3], k_mom_16[3], k_mom_32[3], k_mom_64[3], k_mom_128[3], k_mom_256[3]]
+    
+    y_1 = np.log(k_1)
+    y_2 = np.log(k_2)
+    y_3 = np.log(k_3)
+    y_4 = np.log(k_4)
+
+    l = [4, 8, 16, 32, 64, 128, 256]
+    l_log = np.log(l)
+
+    fit_phase_1, cov_phase_1 = np.polyfit(l_log, y_1, 1, cov=True)
+    p_phase_1 = np.poly1d(fit_phase_1)
+    fit_phase_2, cov_phase_2 = np.polyfit(l_log, y_2, 1, cov=True)
+    p_phase_2 = np.poly1d(fit_phase_2)
+    fit_phase_3, cov_phase_3 = np.polyfit(l_log, y_3, 1, cov=True)
+    p_phase_3 = np.poly1d(fit_phase_3)
+    fit_phase_4, cov_phase_4 = np.polyfit(l_log[:-1], y_4[:-1], 1, cov=True)
+    p_phase_4 = np.poly1d(fit_phase_4)
+
+    gradient_1 = fit_phase_1[0]
+    gradient_2 = fit_phase_2[0]
+    gradient_3 = fit_phase_3[0]
+    gradient_4 = fit_phase_4[0]
+
+    fig, ax = plt.subplots()
+    params = {'legend.fontsize': 12}
+    plt.rcParams.update(params)
+    matplotlib.rcParams['mathtext.fontset'] = 'custom'
+    matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+    matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+    matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    l_log_space = np.linspace(min(l_log), max(l_log), 500)
+    plt.plot(l_log, y_1, 'o')
+    plt.plot(l_log, y_2, 'o')
+    plt.plot(l_log, y_3, 'o')
+    plt.plot(l_log[:-1], y_4[:-1], 'o')
+    plt.plot(l_log_space, p_phase_1(l_log_space), label=r'$fit: k=1,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_1, 3)))
+    plt.plot(l_log_space, p_phase_2(l_log_space), label=r'$fit: k=2,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_2, 3)))
+    plt.plot(l_log_space, p_phase_3(l_log_space), label=r'$fit: k=3,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_3, 3)))
+    plt.plot(l_log_space[:-80], p_phase_4(l_log_space[:-80]), label=r'$fit: k=4,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_4, 3)))
+    plt.legend()
+    plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
+    plt.ylabel(r'$\it{log({\langle{s^k}\rangle})}$', fontname='Times New Roman', fontsize=17)
+    plt.minorticks_on()
+    ax.tick_params(direction='in')
+    ax.tick_params(which='minor', direction='in')
+    plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
+    plt.xticks(fontsize=12, fontname='Times New Roman')
+    plt.yticks(fontsize=12, fontname='Times New Roman')
+    plt.xlim(1, 6)
+    plt.ylim(0, 35)
+    plt.savefig('Plots/Task3/task3b_i.png')
+    plt.show()
+
+    gradients = [gradient_1, gradient_2, gradient_3, gradient_4]
+    k_s = [1, 2, 3, 4]
+    fit_phase_k, cov_phase_k = np.polyfit(k_s, gradients, 1, cov=True)
+    p_phase_k = np.poly1d(fit_phase_k)
+    
+    fig, ax = plt.subplots()
+    params = {'legend.fontsize': 12}
+    plt.rcParams.update(params)
+    matplotlib.rcParams['mathtext.fontset'] = 'custom'
+    matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
+    matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
+    matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
+    matplotlib.rcParams['mathtext.fontset'] = 'stix'
+    plt.plot(k_s, gradients, 'o')
+    k_space = np.linspace(0, 4, 500)
+    plt.plot(k_space, p_phase_k(k_space), label=r'$fit:$' + r'$gradient\equiv D = $' + r'${}$'.format(round(fit_phase_k[0], 3)) \
+                                                + '\n' + r'$fit: \tau_s = $' + r'${}$'.format(round(1 - fit_phase_k[1]/fit_phase_k[0], 4)))
+    plt.legend()
+    plt.xlabel(r'$\it{k}$', fontname='Times New Roman', fontsize=17)
+    plt.ylabel(r'$\it{D(1 + k - \tau_s)}$', fontname='Times New Roman', fontsize=17)
+    plt.minorticks_on()
+    ax.tick_params(direction='in')
+    ax.tick_params(which='minor', direction='in')
+    plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
+    plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
+    plt.xticks(fontsize=12, fontname='Times New Roman')
+    plt.yticks(fontsize=12, fontname='Times New Roman')
+    plt.xlim(0.5, 4.5)
+    plt.ylim(0, 8)
+    plt.savefig('Plots/Task3/task3b_ii.png')
+    plt.show()
+
+
+def use_args(args):
+    """
+    :param args: arguments provided by user at terminal / cmd
+    """
+
+    tasks = ['1', '2a', '2b', '2d', '2e', '2f', '2g', '3a', '3b']  # Valid task numbers
+    if args.task not in tasks:  # If task No. provided is not valid raise value error
+        raise ValueError('Argument not valid. Please enter one of the following tasks\n\t{}'.format(tasks))
+    else:
+        if args.task == '1':
+            if args.execute:
+                task_1(compute=True, plot=False)
+                # print('No. of reccurant configs:', check_recurrent_configs(size=2, grains=int(2e4)))  # remember to change vars
+            else:
+                task_1(compute=False, plot=True)
+                # print('No. of reccurant configs:', check_recurrent_configs(size=2, grains=int(2e4)))  # remember to change vars
+        elif args.task == '2a':
+            if args.execute:            
+                task_2_a(compute=True, plot=False)
+            else:
+                task_2_a(compute=False, plot=True)
+        elif args.task == '2b':
+            if args.execute:
+                task_2_b(compute=True, plot=False)
+            else:
+                task_2_b(compute=False, plot=True)
+        elif args.task == '2d':
+            if args.execute:
+                task_2_d(compute=True, plot=False)
+            else:
+                task_2_d(compute=False, plot=True)
+        elif args.task == '2e':
+            task_2_e()
+        elif args.task == '2f':
+            task_2_f()
+        elif args.task == '2g':
+            if args.execute:
+                task_2_g(compute=True, plot=False)
+            else:
+                task_2_g(compute=False, plot=True)
+        elif args.task == '3a':
+            if args.execute:
+                task_3_a(compute=True, plot=False)
+            else:
+                task_3_a(compute=False, plot=True)
+        elif args.task == '3b':
+            task_3_b()
         
-        k_mom_4 = [np.average(np.power(avalanches[0], i)) for i in range(1, 5)]
-        k_mom_8 = [np.average(np.power(avalanches[1], i)) for i in range(1, 5)]
-        k_mom_16 = [np.average(np.power(avalanches[2], i)) for i in range(1, 5)]
-        k_mom_32 = [np.average(np.power(avalanches[3], i)) for i in range(1, 5)]
-        k_mom_64 = [np.average(np.power(avalanches[4], i)) for i in range(1, 5)]
-        k_mom_128 = [np.average(np.power(avalanches[5], i)) for i in range(1, 5)]
-        k_mom_256 = [np.average(np.power(avalanches[6], i)) for i in range(1, 5)]
-
-        k_1 = [k_mom_4[0], k_mom_8[0], k_mom_16[0], k_mom_32[0], k_mom_64[0], k_mom_128[0], k_mom_256[0]]
-        k_2 = [k_mom_4[1], k_mom_8[1], k_mom_16[1], k_mom_32[1], k_mom_64[1], k_mom_128[1], k_mom_256[1]]
-        k_3 = [k_mom_4[2], k_mom_8[2], k_mom_16[2], k_mom_32[2], k_mom_64[2], k_mom_128[2], k_mom_256[2]]
-        k_4 = [k_mom_4[3], k_mom_8[3], k_mom_16[3], k_mom_32[3], k_mom_64[3], k_mom_128[3], k_mom_256[3]]
-        
-        y_1 = np.log(k_1)
-        y_2 = np.log(k_2)
-        y_3 = np.log(k_3)
-        y_4 = np.log(k_4)
-
-        l = [4, 8, 16, 32, 64, 128, 256]
-        l_log = np.log(l)
-
-        fit_phase_1, cov_phase_1 = np.polyfit(l_log, y_1, 1, cov=True)
-        p_phase_1 = np.poly1d(fit_phase_1)
-        fit_phase_2, cov_phase_2 = np.polyfit(l_log, y_2, 1, cov=True)
-        p_phase_2 = np.poly1d(fit_phase_2)
-        fit_phase_3, cov_phase_3 = np.polyfit(l_log, y_3, 1, cov=True)
-        p_phase_3 = np.poly1d(fit_phase_3)
-        fit_phase_4, cov_phase_4 = np.polyfit(l_log[:-1], y_4[:-1], 1, cov=True)
-        p_phase_4 = np.poly1d(fit_phase_4)
-
-        gradient_1 = fit_phase_1[0]
-        gradient_2 = fit_phase_2[0]
-        gradient_3 = fit_phase_3[0]
-        gradient_4 = fit_phase_4[0]
-
-        fig, ax = plt.subplots()
-        params = {'legend.fontsize': 12}
-        plt.rcParams.update(params)
-        matplotlib.rcParams['mathtext.fontset'] = 'custom'
-        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-        matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        l_log_space = np.linspace(min(l_log), max(l_log), 500)
-        plt.plot(l_log, y_1, 'o')
-        plt.plot(l_log, y_2, 'o')
-        plt.plot(l_log, y_3, 'o')
-        plt.plot(l_log[:-1], y_4[:-1], 'o')
-        plt.plot(l_log_space, p_phase_1(l_log_space), label=r'$fit: k=1,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_1, 3)))
-        plt.plot(l_log_space, p_phase_2(l_log_space), label=r'$fit: k=2,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_2, 3)))
-        plt.plot(l_log_space, p_phase_3(l_log_space), label=r'$fit: k=3,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_3, 3)))
-        plt.plot(l_log_space[:-80], p_phase_4(l_log_space[:-80]), label=r'$fit: k=4,$' + ' ' + r'$gradient=$' + r'${}$'.format(round(gradient_4, 3)))
-        plt.legend()
-        plt.xlabel(r'$\it{log({L})}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{log({\langle{s^k}\rangle})}$', fontname='Times New Roman', fontsize=17)
-        plt.minorticks_on()
-        ax.tick_params(direction='in')
-        ax.tick_params(which='minor', direction='in')
-        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
-        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
-        plt.xticks(fontsize=12, fontname='Times New Roman')
-        plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(1, 6)
-        plt.ylim(0, 35)
-        plt.savefig('Plots/Task3/task3b_i.png')
-        plt.show()
-
-        gradients = [gradient_1, gradient_2, gradient_3, gradient_4]
-        k_s = [1, 2, 3, 4]
-        fit_phase_k, cov_phase_k = np.polyfit(k_s, gradients, 1, cov=True)
-        p_phase_k = np.poly1d(fit_phase_k)
-        
-        fig, ax = plt.subplots()
-        params = {'legend.fontsize': 12}
-        plt.rcParams.update(params)
-        matplotlib.rcParams['mathtext.fontset'] = 'custom'
-        matplotlib.rcParams['mathtext.rm'] = 'Bitstream Vera Sans'
-        matplotlib.rcParams['mathtext.it'] = 'Bitstream Vera Sans:italic'
-        matplotlib.rcParams['mathtext.bf'] = 'Bitstream Vera Sans:bold'
-        matplotlib.rcParams['mathtext.fontset'] = 'stix'
-        plt.plot(k_s, gradients, 'o')
-        k_space = np.linspace(0, 4, 500)
-        plt.plot(k_space, p_phase_k(k_space), label=r'$fit:$' + r'$gradient\equiv D = $' + r'${}$'.format(round(fit_phase_k[0], 3)) \
-                                                    + '\n' + r'$fit: \tau_s = $' + r'${}$'.format(round(1 - fit_phase_k[1]/fit_phase_k[0], 4)))
-        plt.legend()
-        plt.xlabel(r'$\it{k}$', fontname='Times New Roman', fontsize=17)
-        plt.ylabel(r'$\it{D(1 + k - \tau_s)}$', fontname='Times New Roman', fontsize=17)
-        plt.minorticks_on()
-        ax.tick_params(direction='in')
-        ax.tick_params(which='minor', direction='in')
-        plt.grid(b=True, which='major', color='#8e8e8e', linestyle='-', alpha=0.4)
-        plt.grid(b=True, which='minor', color='#999999', linestyle='-', alpha=0.1)
-        plt.xticks(fontsize=12, fontname='Times New Roman')
-        plt.yticks(fontsize=12, fontname='Times New Roman')
-        plt.xlim(0.5, 4.5)
-        plt.ylim(0, 8)
-        plt.savefig('Plots/Task3/task3b_ii.png')
-        plt.show()
-
 
 if __name__ == '__main__':
-    # task_1(compute=False, plot=True)
-    # # print('No. of reccurant configs:', check_recurrent_configs(size=2, grains=int(2e4)))  # remember to change vars
-    # task_2_a(compute=False, plot=True)
-    # task_2_b(compute=False, plot=True)
-    # task_2_d(compute=False, plot=True)
-    # task_2_e()
-    # task_2_f()
-    # task_2_g(compute=False, plot=True)
-    task_3_a(compute=False, plot=True)
-    # task_3_b()
+    parser = argparse.ArgumentParser(description='Georgios Alevras: Complexity & Networks: Complexity Project - Script Help',
+                                     epilog='Enjoy the script :)')
+    parser.add_argument('-t', '--task', type=str, help='Task number to be executed')
+    parser.add_argument('-e', '--execute', action='store_true', help='Flag: if present will execute rather than plot task')
+    arguments = parser.parse_args()  # Parses all arguments provided at script on command-line
+    use_args(arguments)  # Executes code according to arguments provided
