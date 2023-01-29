@@ -16,7 +16,7 @@ The repository contains:
 - A folder with the plots that are produced from the experiments `./Plots`
 
 
-## Execute Code: ##
+## Execute Code ##
 To run the code you need to consider 2 arguments:
     
     -t (task number, type=str) and -e (execute, type=boolean)
@@ -29,7 +29,7 @@ The first argument is necessary and identifies which task to run. If the 2nd arg
     2. python3 main.py -t 2g -e
     3. python3 main.py -h
 
-## Code Structure: ##
+## Code Structure ##
 
 The code contains 4 main methods that define the Oslo model and one method for each task, which are listed in the project script 'CandNProject.pdf'.
 
@@ -43,7 +43,7 @@ The code contains 4 main methods that define the Oslo model and one method for e
 
 Then there are methods named 'task_1', 'task_2a' etc. one for each task
 
-# Necessary Conditions: #
+## Necessary Conditions ##
     1. Saved .npy files must be in same directory as the main.py file
     2. logbin_2020.py file must be in same directory as the main.py file
     3. -t argument must always be given: type 'python3 main.py -h' to get help
