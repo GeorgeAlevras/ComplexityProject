@@ -1,19 +1,15 @@
 # Complexity Project #
 
-Author: George Alevras \
-Date: 22/02/2021
-
-## Description ##
 This was my first of two courseworks representing 45% of the course 'Complexity & Networks' - obtaining a grade of 71.2%. The project involved building an Oslo model - one of the simplest models displaying self-organised criticality (SOC). Algorithms were developed to explore how properties of the model scale with model size, analysing transient and recurring configurations. Finally, moment analysis was applied to demonstrate fundamental aspects of self-organised criticality - scaling and data collapse.
 
 ## Organisation ##
 The repository contains:
-- The report submitted for the coursework `./01531221-ComplexityReport.pdf`
+- The report submitted for the coursework `./complexity_report.pdf`
 - The file with the main source code `./main.py`
 - A file that does logarithmic binning of data `./logbin2020.py`
-- A folder with all data object files (Numpy) where data structures are saved `./Numpy Files`
-- A folder with all data object files (Numpy) where data structures from previous runs are saved `./Old Files`
-- A folder with the plots that are produced from the experiments `./Plots`
+- A folder with all data object files (Numpy) where data structures are saved `./numpy_files`
+- A folder with all data object files (Numpy) where data structures from previous runs are saved `./previous_trials`
+- A folder with the plots that are produced from the experiments `./plots`
 
 
 ## Execute Code ##
