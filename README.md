@@ -7,9 +7,9 @@ The repository contains:
 - The report submitted for the coursework `./complexity_report.pdf`
 - The file with the main source code `./main.py`
 - A file that does logarithmic binning of data `./logbin2020.py`
-- A folder with all data object files (Numpy) where data structures are saved `./numpy_files`
-- A folder with all data object files (Numpy) where data structures from previous runs are saved `./previous_trials`
-- A folder with the plots that are produced from the experiments `./plots`
+- A directory with all data object files (Numpy) where data structures are saved `./numpy_files`
+- A directory with all data object files (Numpy) where data structures from previous runs are saved `./previous_trials`
+- A directory with the plots that are produced from the experiments `./plots`
 
 
 ## Execute Code ##
